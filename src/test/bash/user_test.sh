@@ -94,6 +94,7 @@ MOCKS_CURL_EXIT_CODE=1 \
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Request error!'
+. $asserts/files/not_exists.sh "${GITHUBX_DST}"
 
 HTTP_CODES=(2 20 22 202 2000 401 403 429 500 '' 'foo')
 for HTTP_CODE in "${HTTP_CODES[@]}"; do
@@ -107,6 +108,7 @@ for HTTP_CODE in "${HTTP_CODES[@]}"; do
  . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
  . $asserts/files/empty.sh "${STDOUT}"
  . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Code error!'
+ . $asserts/files/not_exists.sh "${GITHUBX_DST}"
 done
 
 VALUES=('foo' '{}0' '[]' 'null' '42')
@@ -155,4 +157,5 @@ MOCKS_CURL_DST='{"id":42}' \
 . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${GITHUBX_DST}")" '{"id":42}'
 rm "${GITHUBX_DST}"
 
+rm "${STDOUT}"
 rm "${STDERR}"
