@@ -16,21 +16,21 @@ STDERR="$(mktemp)"
 
 :> "${STDOUT}"
 :> "${STDERR}"
-"${SCRIPT}" 2>"${STDERR}"
+"${SCRIPT}" >"${STDOUT}" 2>"${STDERR}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Wrong arguments!'
 
 :> "${STDOUT}"
 :> "${STDERR}"
-"${SCRIPT}" '' 2>"${STDERR}"
+"${SCRIPT}" '' >"${STDOUT}" 2>"${STDERR}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Wrong arguments!'
 
 :> "${STDOUT}"
 :> "${STDERR}"
-"${SCRIPT}" '' '' '' 2>"${STDERR}"
+"${SCRIPT}" '' '' '' >"${STDOUT}" 2>"${STDERR}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Wrong arguments!'
@@ -39,7 +39,7 @@ STDERR="$(mktemp)"
 
 :> "${STDOUT}"
 :> "${STDERR}"
-"${SCRIPT}" '' '' 2>"${STDERR}"
+"${SCRIPT}" '' '' >"${STDOUT}" 2>"${STDERR}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'No token!'
@@ -48,7 +48,7 @@ GITHUBX_PAT='foo'
 
 :> "${STDOUT}"
 :> "${STDERR}"
-"${SCRIPT}" "${GITHUBX_PAT}" '' 2>"${STDERR}"
+"${SCRIPT}" "${GITHUBX_PAT}" '' >"${STDOUT}" 2>"${STDERR}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'No dst!'
@@ -56,7 +56,7 @@ GITHUBX_PAT='foo'
 :> "${STDOUT}"
 :> "${STDERR}"
 GITHUBX_DST="$(mktemp -d)"
-"${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" 2>"${STDERR}"
+"${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" "\"${GITHUBX_DST}\" is not a file!"
@@ -67,7 +67,7 @@ rm -rf "${GITHUBX_DST}"
 GITHUBX_DST="$(mktemp)"
 rm "${GITHUBX_DST}"
 ln -s "${GITHUBX_DST}" "${GITHUBX_DST}"
-"${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" 2>"${STDERR}"
+"${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" "\"${GITHUBX_DST}\" is a symlink!"
@@ -76,7 +76,7 @@ rm "${GITHUBX_DST}"
 :> "${STDOUT}"
 :> "${STDERR}"
 GITHUBX_DST="$(mktemp)"
-"${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" 2>"${STDERR}"
+"${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" "\"${GITHUBX_DST}\" exists!"
@@ -90,7 +90,7 @@ GITHUBX_DST="$(mktemp)"
 rm "${GITHUBX_DST}"
 PATH="$mocks/curl/bin:${PATH}" \
 MOCKS_CURL_EXIT_CODE=1 \
-"${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" 2>"${STDERR}"
+"${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Request error!'
@@ -103,7 +103,7 @@ for HTTP_CODE in "${HTTP_CODES[@]}"; do
  rm "${GITHUBX_DST}"
  PATH="$mocks/curl/bin:${PATH}" \
  MOCKS_CURL_HTTP_CODE="${HTTP_CODE}" \
- "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" 2>"${STDERR}"
+ "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
  . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
  . $asserts/files/empty.sh "${STDOUT}"
  . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Code error!'
@@ -118,7 +118,7 @@ for MOCKS_CURL_DST in "${VALUES[@]}"; do
  PATH="$mocks/curl/bin:${PATH}" \
  MOCKS_CURL_HTTP_CODE=200 \
  MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
- "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" 2>"${STDERR}"
+ "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
  . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
  . $asserts/files/empty.sh "${STDOUT}"
  . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Parse dst error!'
@@ -134,7 +134,7 @@ for MOCKS_CURL_DST in "${VALUES[@]}"; do
  PATH="$mocks/curl/bin:${PATH}" \
  MOCKS_CURL_HTTP_CODE=200 \
  MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
- "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" 2>"${STDERR}"
+ "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
  . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
  . $asserts/files/empty.sh "${STDOUT}"
  . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Check dst error!'
@@ -148,7 +148,7 @@ rm "${GITHUBX_DST}"
 PATH="$mocks/curl/bin:${PATH}" \
 MOCKS_CURL_HTTP_CODE=200 \
 MOCKS_CURL_DST='{"id":42}' \
-"${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" 2>"${STDERR}"
+"${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '0'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/empty.sh "${STDERR}"
