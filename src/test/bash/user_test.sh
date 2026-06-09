@@ -152,5 +152,6 @@ MOCKS_CURL_DST='{"id":42}' \
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '0'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/empty.sh "${STDERR}"
+. $asserts/strings/eq.sh "${SCRIPT}" "$(<"${GITHUBX_DST}")" '{"id":42}'
 
 rm "${STDERR}"
