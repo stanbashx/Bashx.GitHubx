@@ -84,6 +84,31 @@ rm "${GITHUBX_DST}"
 
 #
 
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_DST="$(mktemp)"
+rm "${GITHUBX_DST}"
+PATH="$mocks/curl/bin:${PATH}" \
+MOCKS_CURL_EXIT_CODE=1 \
+"${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" 2>"${STDERR}"
+. $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Request error!'
+
+HTTP_CODES=(2 20 22 202 2000 401 403 429 500 '' 'foo')
+for HTTP_CODE in "${HTTP_CODES[@]}"; do
+ :> "${STDOUT}"
+ :> "${STDERR}"
+ GITHUBX_DST="$(mktemp)"
+ rm "${GITHUBX_DST}"
+ PATH="$mocks/curl/bin:${PATH}" \
+ MOCKS_CURL_HTTP_CODE="${HTTP_CODE}" \
+ "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" 2>"${STDERR}"
+ . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
+ . $asserts/files/empty.sh "${STDOUT}"
+ . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Code error!'
+done
+
 echo 'Not implemented!'; exit 1 # todo
 
 rm "${STDERR}"
