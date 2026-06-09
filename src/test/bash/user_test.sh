@@ -109,6 +109,38 @@ for HTTP_CODE in "${HTTP_CODES[@]}"; do
  . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Code error!'
 done
 
+VALUES=('foo' '{}0')
+for MOCKS_CURL_DST in "${VALUES[@]}"; do
+ :> "${STDOUT}"
+ :> "${STDERR}"
+ GITHUBX_DST="$(mktemp)"
+ rm "${GITHUBX_DST}"
+ PATH="$mocks/curl/bin:${PATH}" \
+ MOCKS_CURL_HTTP_CODE=200 \
+ MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
+ "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" 2>"${STDERR}"
+ . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
+ . $asserts/files/empty.sh "${STDOUT}"
+ . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Parse dst error!'
+ rm "${GITHUBX_DST}"
+done
+
+VALUES=('{}' '{"id":null}' '{"id":0}' '{"id":"42"}')
+for MOCKS_CURL_DST in "${VALUES[@]}"; do
+ :> "${STDOUT}"
+ :> "${STDERR}"
+ GITHUBX_DST="$(mktemp)"
+ rm "${GITHUBX_DST}"
+ PATH="$mocks/curl/bin:${PATH}" \
+ MOCKS_CURL_HTTP_CODE=200 \
+ MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
+ "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" 2>"${STDERR}"
+ . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
+ . $asserts/files/empty.sh "${STDOUT}"
+ . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Check dst error!'
+ rm "${GITHUBX_DST}"
+done
+
 echo 'Not implemented!'; exit 1 # todo
 
 rm "${STDERR}"
