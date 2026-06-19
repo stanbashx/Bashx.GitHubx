@@ -34,7 +34,7 @@ HTTP_CODE=$(curl -m 8 -w '%{http_code}' \
 if [[ $? -ne 0 ]]; then
  echo 'Request error!' >&2; exit 1
 elif [[ "${HTTP_CODE}" != '200' ]]; then
- echo 'Code error!' >&2; exit 1
+ echo 'Response error!' >&2; exit 1
 fi
 
 if [[ -L "${GITHUBX_DST}" ]]; then
