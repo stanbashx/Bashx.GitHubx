@@ -88,32 +88,32 @@ rm -r "${GITHUBX_DST}"
 
 #
 
-echo 'Not implemented!'; exit 1 # todo
-
 :> "${STDOUT}"
 :> "${STDERR}"
+GITHUBX_PAT='foo'
 GITHUBX_DST="$(mktemp)"
 rm "${GITHUBX_DST}"
-PATH="$mocks/curl/bin:${PATH}" \
-MOCKS_CURL_EXIT_CODE=1 \
-"${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
+PATH="${mocks}/curl/bin:${PATH}" \
+ MOCKS_CURL_EXIT_CODE=1 \
+ "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
 . $asserts/files/empty.sh "${STDOUT}"
-. $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Request error!'
+. $asserts/files/equals.sh "${STDERR}" $'Request error!\n'
 . $asserts/files/not_exists.sh "${GITHUBX_DST}"
 
-HTTP_CODES=(2 20 22 202 2000 401 403 429 500 '' 'foo')
+HTTP_CODES=(2 20 22 202 2000 401 403 429 500 '' 'foo' '-1' '200 ' ' 200' $'\n200' $'\t200')
 for HTTP_CODE in "${HTTP_CODES[@]}"; do
  :> "${STDOUT}"
  :> "${STDERR}"
+ GITHUBX_PAT='foo'
  GITHUBX_DST="$(mktemp)"
  rm "${GITHUBX_DST}"
- PATH="$mocks/curl/bin:${PATH}" \
- MOCKS_CURL_HTTP_CODE="${HTTP_CODE}" \
- "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
+ PATH="${mocks}/curl/bin:${PATH}" \
+  MOCKS_CURL_HTTP_CODE="${HTTP_CODE}" \
+  "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
  . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
  . $asserts/files/empty.sh "${STDOUT}"
- . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Code error!'
+ . $asserts/files/equals.sh "${STDERR}" $'Response error!\n'
  . $asserts/files/not_exists.sh "${GITHUBX_DST}"
 done
 
@@ -121,47 +121,53 @@ VALUES=('foo' '{}0' '[]' 'null' '42')
 for MOCKS_CURL_DST in "${VALUES[@]}"; do
  :> "${STDOUT}"
  :> "${STDERR}"
+ GITHUBX_PAT='foo'
  GITHUBX_DST="$(mktemp)"
  rm "${GITHUBX_DST}"
- PATH="$mocks/curl/bin:${PATH}" \
- MOCKS_CURL_HTTP_CODE=200 \
- MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
- "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
+ PATH="${mocks}/curl/bin:${PATH}" \
+  MOCKS_CURL_HTTP_CODE=200 \
+  MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
+  "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
  . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
  . $asserts/files/empty.sh "${STDOUT}"
- . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Parse dst error!'
+ . $asserts/files/equals.sh "${STDERR}" $'Parse dst error!\n'
  rm "${GITHUBX_DST}"
 done
 
-VALUES=('{}' '{"id":null}' '{"id":0}' '{"id":"42"}' '{"id":-1}' '{"id":0.5}')
+VALUES=('{}' '{"id":null}' '{"id":{}}' '{"id":[]}' '{"id":0}' '{"id":"42"}' '{"id":-1}' '{"id":0.5}')
 for MOCKS_CURL_DST in "${VALUES[@]}"; do
  :> "${STDOUT}"
  :> "${STDERR}"
+ GITHUBX_PAT='foo'
  GITHUBX_DST="$(mktemp)"
  rm "${GITHUBX_DST}"
- PATH="$mocks/curl/bin:${PATH}" \
- MOCKS_CURL_HTTP_CODE=200 \
- MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
- "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
+ PATH="${mocks}/curl/bin:${PATH}" \
+  MOCKS_CURL_HTTP_CODE=200 \
+  MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
+  "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
  . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
  . $asserts/files/empty.sh "${STDOUT}"
- . $asserts/strings/eq.sh "${SCRIPT}" "$(<"${STDERR}")" 'Check dst error!'
+ . $asserts/files/equals.sh "${STDERR}" $'Check dst error!\n'
  rm "${GITHUBX_DST}"
 done
 
 :> "${STDOUT}"
 :> "${STDERR}"
+GITHUBX_PAT='foo'
 GITHUBX_DST="$(mktemp)"
 rm "${GITHUBX_DST}"
-PATH="$mocks/curl/bin:${PATH}" \
-MOCKS_CURL_HTTP_CODE=200 \
-MOCKS_CURL_DST='{"id":42}' \
-"${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
+MOCKS_CURL_DST='{"id":42}'
+PATH="${mocks}/curl/bin:${PATH}" \
+ MOCKS_CURL_HTTP_CODE=200 \
+ MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
+ "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '0'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/empty.sh "${STDERR}"
-. $asserts/strings/eq.sh "${SCRIPT}" "$(<"${GITHUBX_DST}")" '{"id":42}'
+. $asserts/files/equals.sh "${GITHUBX_DST}" "${MOCKS_CURL_DST}"
 rm "${GITHUBX_DST}"
+
+#
 
 rm "${STDOUT}"
 rm "${STDERR}"
