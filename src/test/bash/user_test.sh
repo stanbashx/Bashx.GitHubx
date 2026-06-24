@@ -173,16 +173,21 @@ rm "${GITHUBX_DST}"
 GITHUBX_PAT='foo'
 GITHUBX_DST="$(mktemp)"
 rm "${GITHUBX_DST}"
+MOCKS_CURL_HEADERS_PATH="$(mktemp)"
+rm "${MOCKS_CURL_HEADERS_PATH}"
 MOCKS_CURL_DST='{"id":42}'
 PATH="${mocks}/curl/bin:${PATH}" \
  MOCKS_CURL_HTTP_CODE=200 \
  MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
+ MOCKS_CURL_HEADERS_PATH="${MOCKS_CURL_HEADERS_PATH}" \
  "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '0'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/empty.sh "${STDERR}"
 . $asserts/files/equals.sh "${GITHUBX_DST}" "${MOCKS_CURL_DST}"
+. $asserts/files/equals.sh "${MOCKS_CURL_HEADERS_PATH}" "Authorization: token ${GITHUBX_PAT}"$'\n'
 rm "${GITHUBX_DST}"
+rm "${MOCKS_CURL_HEADERS_PATH}"
 
 #
 
