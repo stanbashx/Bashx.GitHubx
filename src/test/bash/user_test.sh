@@ -40,7 +40,8 @@ STDERR="$(mktemp)"
 :> "${STDOUT}"
 :> "${STDERR}"
 GITHUBX_PAT=''
-"${SCRIPT}" "${GITHUBX_PAT}" '' >"${STDOUT}" 2>"${STDERR}"
+GITHUBX_DST=''
+"${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/equals.sh "${STDERR}" $'No token!\n'
@@ -150,6 +151,22 @@ for MOCKS_CURL_DST in "${VALUES[@]}"; do
  . $asserts/files/equals.sh "${STDERR}" $'Check dst error!\n'
  rm "${GITHUBX_DST}"
 done
+
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_PAT='foo'
+GITHUBX_DST="$(mktemp)"
+rm "${GITHUBX_DST}"
+MOCKS_CURL_DST=200
+PATH="${mocks}/curl/bin:${PATH}" \
+ MOCKS_CURL_HTTP_CODE=201 \
+ MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
+ "${SCRIPT}" "${GITHUBX_PAT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
+. $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/equals.sh "${STDERR}" $'Response error!\n'
+. $asserts/files/equals.sh "${GITHUBX_DST}" "${MOCKS_CURL_DST}"
+rm "${GITHUBX_DST}"
 
 :> "${STDOUT}"
 :> "${STDERR}"
