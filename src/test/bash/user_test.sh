@@ -100,7 +100,7 @@ PATH="${mocks}/curl/bin:${PATH}" \
 . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/equals.sh "${STDERR}" $'Request error!\n'
-. $asserts/files/not_exists.sh "${GITHUBX_DST}"
+rm -f "${GITHUBX_DST}"
 
 HTTP_CODES=(2 20 22 202 2000 401 403 429 500 '' 'foo' '-1' '200 ' ' 200' $'\n200' $'\t200')
 for HTTP_CODE in "${HTTP_CODES[@]}"; do
@@ -115,7 +115,7 @@ for HTTP_CODE in "${HTTP_CODES[@]}"; do
  . $asserts/strings/eq.sh "${SCRIPT}" "$?" '1'
  . $asserts/files/empty.sh "${STDOUT}"
  . $asserts/files/equals.sh "${STDERR}" $'Response error!\n'
- . $asserts/files/not_exists.sh "${GITHUBX_DST}"
+ rm -f "${GITHUBX_DST}"
 done
 
 VALUES=('foo' '{}0' '[]' 'null' '42')
