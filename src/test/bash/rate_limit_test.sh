@@ -118,11 +118,11 @@ VALUES=(
  '{"resources":{"core":{}}}'
  '{"resources":{"core":{"limit":null}}}'
  '{"resources":{"core":{"limit":{}}}}'
- '{"resources":{"core":{"limit":[]]}}}'
- '{"resources":{"core":{"limit":0]}}}'
+ '{"resources":{"core":{"limit":[]}}}'
+ '{"resources":{"core":{"limit":0}}}'
  '{"resources":{"core":{"limit":"42"}}}'
- '{"resources":{"core":{"limit":-1]}}}'
- '{"resources":{"core":{"limit":0.5]}}}'
+ '{"resources":{"core":{"limit":-1}}}'
+ '{"resources":{"core":{"limit":0.5}}}'
 )
 for MOCKS_CURL_DST in "${VALUES[@]}"; do
  :> "${STDOUT}"
