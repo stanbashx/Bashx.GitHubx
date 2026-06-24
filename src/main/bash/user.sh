@@ -51,6 +51,6 @@ GITHUBX_DST_TAGS="$(yq -Mer -p=json -o=json 'tag' "${GITHUBX_DST}" 2>/dev/null)"
 if [[ $? -ne 0 || "${GITHUBX_DST_TAGS}" != '!!map' ]]; then
  echo 'Parse dst error!' >&2; exit 1; fi
 
-GITHUBX_USER_ID="$(yq -Me -p=json -o=json .id "${GITHUBX_DST}" 2>/dev/null)"
+GITHUBX_USER_ID="$(yq -Me -p=json -o=json '.id' "${GITHUBX_DST}" 2>/dev/null)"
 if [[ $? -ne 0 || ! "${GITHUBX_USER_ID}" =~ ^[1-9][0-9]*$ ]]; then
  echo 'Check dst error!' >&2; exit 1; fi
