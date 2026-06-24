@@ -1,14 +1,9 @@
 #!/usr/local/bin/bash
 
-if [[ $# -ne 2 ]]; then
+if [[ $# -ne 1 ]]; then
  echo 'Wrong arguments!' >&2; exit 1; fi
 
-GITHUBX_PAT="$1"
-
-if [[ -z "${GITHUBX_PAT}" ]]; then
- echo 'No token!' >&2; exit 1; fi
-
-GITHUBX_DST="$2"
+GITHUBX_DST="$1"
 
 if [[ -z "${GITHUBX_DST}" ]]; then
  echo 'No dst!' >&2; exit 1
@@ -24,11 +19,10 @@ fi
 
 GITHUBX_API='https://api.github.com'
 
-# https://docs.github.com/en/rest/users/users#get-the-authenticated-user
+# https://docs.github.com/en/rest/rate-limit/rate-limit
 
 HTTP_CODE=$(curl -m 8 -w '%{http_code}' \
- "${GITHUBX_API}/user" \
- -H "Authorization: token ${GITHUBX_PAT}" \
+ "${GITHUBX_API}/rate_limit" \
  -o "${GITHUBX_DST}" 2>/dev/null)
 
 if [[ $? -ne 0 ]]; then
@@ -51,6 +45,6 @@ GITHUBX_DST_TAGS="$(yq -Mer -p=json -o=json 'tag' "${GITHUBX_DST}" 2>/dev/null)"
 if [[ $? -ne 0 || "${GITHUBX_DST_TAGS}" != '!!map' ]]; then
  echo 'Parse dst error!' >&2; exit 1; fi
 
-GITHUBX_USER_ID="$(yq -Me -p=json -o=json '.id' "${GITHUBX_DST}" 2>/dev/null)"
-if [[ $? -ne 0 || ! "${GITHUBX_USER_ID}" =~ ^[1-9][0-9]*$ ]]; then
+GITHUBX_RATE_LIMIT="$(yq -Me -p=json -o=json '.resources.core.limit' "${GITHUBX_DST}" 2>/dev/null)"
+if [[ $? -ne 0 || ! "${GITHUBX_RATE_LIMIT}" =~ ^[1-9][0-9]*$ ]]; then
  echo 'Check dst error!' >&2; exit 1; fi
