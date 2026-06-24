@@ -114,13 +114,15 @@ done
 
 VALUES=(
  '{}'
- '{".resources.core.limit":null}'
- '{".resources.core.limit":{}}'
- '{".resources.core.limit":[]}'
- '{".resources.core.limit":0}'
- '{".resources.core.limit":"42"}'
- '{".resources.core.limit":-1}'
- '{".resources.core.limit":0.5}'
+ '{"resources":{}}'
+ '{"resources":{"core":{}}}'
+ '{"resources":{"core":{"limit":null}}}'
+ '{"resources":{"core":{"limit":{}}}}'
+ '{"resources":{"core":{"limit":[]]}}}'
+ '{"resources":{"core":{"limit":0]}}}'
+ '{"resources":{"core":{"limit":"42"}}}'
+ '{"resources":{"core":{"limit":-1]}}}'
+ '{"resources":{"core":{"limit":0.5]}}}'
 )
 for MOCKS_CURL_DST in "${VALUES[@]}"; do
  :> "${STDOUT}"
@@ -152,7 +154,20 @@ PATH="${mocks}/curl/bin:${PATH}" \
 . $asserts/files/equals.sh "${GITHUBX_DST}" "${MOCKS_CURL_DST}"
 rm "${GITHUBX_DST}"
 
-echo 'Not implemented!'; exit 1 # todo
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_DST="$(mktemp)"
+rm "${GITHUBX_DST}"
+MOCKS_CURL_DST='{"resources":{"core":{"limit":42}}}'
+PATH="${mocks}/curl/bin:${PATH}" \
+ MOCKS_CURL_HTTP_CODE=200 \
+ MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
+ "${SCRIPT}" "${GITHUBX_DST}" >"${STDOUT}" 2>"${STDERR}"
+. $asserts/strings/eq.sh "${SCRIPT}" "$?" '0'
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/empty.sh "${STDERR}"
+. $asserts/files/equals.sh "${GITHUBX_DST}" "${MOCKS_CURL_DST}"
+rm "${GITHUBX_DST}"
 
 #
 
