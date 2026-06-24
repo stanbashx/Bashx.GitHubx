@@ -112,7 +112,16 @@ for MOCKS_CURL_DST in "${VALUES[@]}"; do
  rm "${GITHUBX_DST}"
 done
 
-VALUES=('{}' '{"id":null}' '{"id":{}}' '{"id":[]}' '{"id":0}' '{"id":"42"}' '{"id":-1}' '{"id":0.5}')
+VALUES=(
+ '{}'
+ '{".resources.core.limit":null}'
+ '{".resources.core.limit":{}}'
+ '{".resources.core.limit":[]}'
+ '{".resources.core.limit":0}'
+ '{".resources.core.limit":"42"}'
+ '{".resources.core.limit":-1}'
+ '{".resources.core.limit":0.5}'
+)
 for MOCKS_CURL_DST in "${VALUES[@]}"; do
  :> "${STDOUT}"
  :> "${STDERR}"
