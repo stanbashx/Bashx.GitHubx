@@ -56,22 +56,22 @@ GITHUBX_PAT='' \
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/equals.sh "${STDERR}" $'No token!\n'
 
-echo 'Not implemented!'; exit 1 # todo
-
 :> "${STDOUT}"
 :> "${STDERR}"
-GITHUBX_PAT_SRC='foo'
+GITHUBX_PAT_SRC='GITHUBX_PAT'
 GITHUBX_DST=''
-"${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+GITHUBX_PAT='foo' \
+ "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
 . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/equals.sh "${STDERR}" $'No dst!\n'
 
 :> "${STDOUT}"
 :> "${STDERR}"
-GITHUBX_PAT_SRC='foo'
+GITHUBX_PAT_SRC='GITHUBX_PAT'
 GITHUBX_DST="$(mktemp -d)"
-"${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+GITHUBX_PAT='foo' \
+ "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
 . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/equals.sh "${STDERR}" "\"${GITHUBX_DST}\" is not a file!"$'\n'
@@ -79,11 +79,12 @@ rm -r "${GITHUBX_DST}"
 
 :> "${STDOUT}"
 :> "${STDERR}"
-GITHUBX_PAT_SRC='foo'
+GITHUBX_PAT_SRC='GITHUBX_PAT'
 GITHUBX_DST="$(mktemp)"
 rm "${GITHUBX_DST}"
 ln -s "${GITHUBX_DST}" "${GITHUBX_DST}"
-"${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+GITHUBX_PAT='foo' \
+ "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
 . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/equals.sh "${STDERR}" "\"${GITHUBX_DST}\" is a symlink!"$'\n'
@@ -91,13 +92,16 @@ rm -r "${GITHUBX_DST}"
 
 :> "${STDOUT}"
 :> "${STDERR}"
-GITHUBX_PAT_SRC='foo'
+GITHUBX_PAT_SRC='GITHUBX_PAT'
 GITHUBX_DST="$(mktemp)"
-"${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+GITHUBX_PAT='foo' \
+ "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
 . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/equals.sh "${STDERR}" "\"${GITHUBX_DST}\" exists!"$'\n'
 rm -r "${GITHUBX_DST}"
+
+echo 'Not implemented!'; exit 1 # todo
 
 #
 
