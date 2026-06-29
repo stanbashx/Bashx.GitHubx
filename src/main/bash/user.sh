@@ -3,7 +3,12 @@
 if [[ $# -ne 2 ]]; then
  echo 'Wrong arguments!' >&2; exit 1; fi
 
-GITHUBX_PAT="$1"
+GITHUBX_PAT_SRC="$1"
+
+if [[ ! "${GITHUBX_PAT_SRC}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ || ! -v "${GITHUBX_PAT_SRC}" ]]; then
+ echo 'Wrong token!' >&2; exit 1; fi
+
+GITHUBX_PAT="${!GITHUBX_PAT_SRC}"
 
 if [[ -z "${GITHUBX_PAT}" ]]; then
  echo 'No token!' >&2; exit 1; fi
