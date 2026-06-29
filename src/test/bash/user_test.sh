@@ -37,8 +37,6 @@ STDERR="$(mktemp)"
 
 #
 
-echo 'Not implemented!'; exit 1 # todo
-
 :> "${STDOUT}"
 :> "${STDERR}"
 GITHUBX_PAT_SRC=''
@@ -46,7 +44,19 @@ GITHUBX_DST=''
 "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
 . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
 . $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/equals.sh "${STDERR}" $'Wrong token!\n'
+
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_PAT_SRC='GITHUBX_PAT'
+GITHUBX_DST=''
+GITHUBX_PAT='' \
+ "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+. $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/equals.sh "${STDERR}" $'No token!\n'
+
+echo 'Not implemented!'; exit 1 # todo
 
 :> "${STDOUT}"
 :> "${STDERR}"
