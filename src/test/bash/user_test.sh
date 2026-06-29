@@ -46,6 +46,68 @@ GITHUBX_DST=''
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/equals.sh "${STDERR}" $'Wrong token!\n'
 
+VALUES=('0' '-')
+for VALUE in "${VALUES[@]}"; do
+ :> "${STDOUT}"
+ :> "${STDERR}"
+ GITHUBX_PAT_SRC="${VALUE}"
+ GITHUBX_DST=''
+ "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+ . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+ . $asserts/files/empty.sh "${STDOUT}"
+ . $asserts/files/equals.sh "${STDERR}" $'Wrong token!\n'
+ #
+ :> "${STDOUT}"
+ :> "${STDERR}"
+ GITHUBX_PAT_SRC="${VALUE}GITHUBX_PAT"
+ GITHUBX_DST=''
+ "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+ . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+ . $asserts/files/empty.sh "${STDOUT}"
+ . $asserts/files/equals.sh "${STDERR}" $'Wrong token!\n'
+done
+
+VALUES=(' ' $'\n' $'\t')
+for VALUE in "${VALUES[@]}"; do
+ :> "${STDOUT}"
+ :> "${STDERR}"
+ GITHUBX_PAT_SRC="${VALUE}"
+ GITHUBX_DST=''
+ "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+ . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+ . $asserts/files/empty.sh "${STDOUT}"
+ . $asserts/files/equals.sh "${STDERR}" $'Wrong token!\n'
+ #
+ :> "${STDOUT}"
+ :> "${STDERR}"
+ GITHUBX_PAT_SRC="${VALUE}GITHUBX_PAT"
+ GITHUBX_DST=''
+ "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+ . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+ . $asserts/files/empty.sh "${STDOUT}"
+ . $asserts/files/equals.sh "${STDERR}" $'Wrong token!\n'
+ #
+ :> "${STDOUT}"
+ :> "${STDERR}"
+ GITHUBX_PAT_SRC="GITHUBX${VALUE}PAT"
+ GITHUBX_DST=''
+ "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+ . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+ . $asserts/files/empty.sh "${STDOUT}"
+ . $asserts/files/equals.sh "${STDERR}" $'Wrong token!\n'
+ #
+ :> "${STDOUT}"
+ :> "${STDERR}"
+ GITHUBX_PAT_SRC="GITHUBX_PAT${VALUE}"
+ GITHUBX_DST=''
+ "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+ . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+ . $asserts/files/empty.sh "${STDOUT}"
+ . $asserts/files/equals.sh "${STDERR}" $'Wrong token!\n'
+done
+
+#
+
 :> "${STDOUT}"
 :> "${STDERR}"
 GITHUBX_PAT_SRC='GITHUBX_PAT'
