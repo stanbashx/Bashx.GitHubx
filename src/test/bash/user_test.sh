@@ -187,11 +187,10 @@ PATH="${mocks}/curl/bin:${PATH}" \
 . $asserts/files/equals.sh "${GITHUBX_DST}" "${MOCKS_CURL_DST}"
 rm "${GITHUBX_DST}"
 
-echo 'Not implemented!'; exit 1 # todo
-
 :> "${STDOUT}"
 :> "${STDERR}"
-GITHUBX_PAT_SRC='foo'
+GITHUBX_PAT_SRC='GITHUBX_PAT'
+GITHUBX_PAT='foo'
 GITHUBX_DST="$(mktemp)"
 rm "${GITHUBX_DST}"
 MOCKS_CURL_HEADERS_PATH="$(mktemp)"
@@ -201,16 +200,15 @@ PATH="${mocks}/curl/bin:${PATH}" \
  MOCKS_CURL_HTTP_CODE=200 \
  MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
  MOCKS_CURL_HEADERS_PATH="${MOCKS_CURL_HEADERS_PATH}" \
+ GITHUBX_PAT="${GITHUBX_PAT}" \
  "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
 . $asserts/ints/eq.sh "${SCRIPT}" "$?" 0
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/empty.sh "${STDERR}"
 . $asserts/files/equals.sh "${GITHUBX_DST}" "${MOCKS_CURL_DST}"
-. $asserts/files/equals.sh "${MOCKS_CURL_HEADERS_PATH}" "Authorization: token ${GITHUBX_PAT}"$'\n' # todo
+. $asserts/files/equals.sh "${MOCKS_CURL_HEADERS_PATH}" "Authorization: token ${GITHUBX_PAT}"$'\n' # todo mktemp
 rm "${GITHUBX_DST}"
 rm "${MOCKS_CURL_HEADERS_PATH}"
-
-echo 'Not implemented!'; exit 1 # todo
 
 #
 
