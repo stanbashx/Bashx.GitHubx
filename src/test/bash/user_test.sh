@@ -188,6 +188,8 @@ PATH="${mocks}/curl/bin:${PATH}" \
 . $asserts/files/equals.sh "${STDERR}" $'Request error!\n'
 rm -f "${GITHUBX_DST}"
 
+#
+
 HTTP_CODES=(2 20 22 202 2000 401 403 429 500 '' 'foo' '-1' '200 ' ' 200' $'\n200' $'\t200')
 for HTTP_CODE in "${HTTP_CODES[@]}"; do
  :> "${STDOUT}"
@@ -204,6 +206,27 @@ for HTTP_CODE in "${HTTP_CODES[@]}"; do
  . $asserts/files/equals.sh "${STDERR}" $'Response error!\n'
  rm -f "${GITHUBX_DST}"
 done
+
+#
+
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_PAT_SRC='GITHUBX_PAT'
+GITHUBX_DST="$(mktemp)"
+rm "${GITHUBX_DST}"
+PATH="${mocks}/curl/bin:${PATH}" \
+ MOCKS_CURL_HTTP_CODE=200 \
+ MOCKS_CURL_DST_TYPE='issue:empty_file' \
+ GITHUBX_PAT='foo' \
+ "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/equals.sh "${STDERR}" "\"${GITHUBX_DST}\" is empty!"$'\n'
+rm -f "${GITHUBX_DST}"
+
+echo 'Not implemented!'; exit 1 # todo
+
+#
 
 VALUES=('foo' '{}0' '[]' 'null' '42')
 for MOCKS_CURL_DST in "${VALUES[@]}"; do
