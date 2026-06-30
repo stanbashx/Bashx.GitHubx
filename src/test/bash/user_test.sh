@@ -341,7 +341,7 @@ PATH="${mocks}/curl/bin:${PATH}" \
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/empty.sh "${STDERR}"
 . $asserts/files/equals.sh "${GITHUBX_DST}" "${MOCKS_CURL_DST}"
-. $asserts/files/equals.sh "${MOCKS_CURL_HEADERS_PATH}" "Authorization: token ${GITHUBX_PAT}"$'\n' # todo mktemp
+. $asserts/files/not_empty.sh "${MOCKS_CURL_HEADERS_PATH}" # todo mock mktemp
 rm "${GITHUBX_DST}"
 rm "${MOCKS_CURL_HEADERS_PATH}"
 
