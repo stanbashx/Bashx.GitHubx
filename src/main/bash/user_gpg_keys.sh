@@ -38,9 +38,9 @@ HTTP_CODE=$(curl -m 8 -w '%{http_code}' \
  --header 'Accept: application/vnd.github+json' \
  --header "X-GitHub-Api-Version: ${GITHUBX_API_VERSION}" \
  --header @<(printf 'Authorization: Bearer %s' "${!GITHUBX_PAT_SRC}") \
- -o "${GITHUBX_DST}" 2>/dev/null); CODE=$?
+ -o "${GITHUBX_DST}" 2>/dev/null)
 
-if [[ ${CODE} -ne 0 ]]; then
+if [[ $? -ne 0 ]]; then
  echo 'Request error!' >&2; exit 1
 elif [[ "${HTTP_CODE}" != '200' ]]; then
  echo 'Response error!' >&2; exit 1
