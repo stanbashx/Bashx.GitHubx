@@ -29,12 +29,15 @@ elif [[ -e "${GITHUBX_DST}" ]]; then
 fi
 
 GITHUBX_API='https://api.github.com'
+GITHUBX_API_VERSION='2026-03-10'
 
 # https://docs.github.com/en/rest/users/gpg-keys#list-gpg-keys-for-the-authenticated-user
 
 HTTP_CODE=$(curl -m 8 -w '%{http_code}' \
  "${GITHUBX_API}/user/gpg_keys" \
- --header @<(printf 'Authorization: token %s' "${!GITHUBX_PAT_SRC}") \
+ --header 'Accept: application/vnd.github+json' \
+ --header "X-GitHub-Api-Version: ${GITHUBX_API_VERSION}" \
+ --header @<(printf 'Authorization: Bearer %s' "${!GITHUBX_PAT_SRC}") \
  -o "${GITHUBX_DST}" 2>/dev/null); CODE=$?
 
 if [[ ${CODE} -ne 0 ]]; then
@@ -54,9 +57,9 @@ elif [[ ! -s "${GITHUBX_DST}" ]]; then
 fi
 
 GITHUBX_DST_TAGS="$(yq -Mer -p=json -o=json 'tag' "${GITHUBX_DST}" 2>/dev/null)"
-if [[ $? -ne 0 || "${GITHUBX_DST_TAGS}" != '!!map' ]]; then
+if [[ $? -ne 0 || "${GITHUBX_DST_TAGS}" != '!!seq' ]]; then
  echo 'Parse dst error!' >&2; exit 1; fi
 
-GITHUBX_USER_ID="$(yq -Me -p=json -o=json '.id' "${GITHUBX_DST}" 2>/dev/null)"
-if [[ $? -ne 0 || ! "${GITHUBX_USER_ID}" =~ ^[1-9][0-9]*$ ]]; then
+GITHUBX_KEY_ID="$(yq -Me -p=json -o=json '.[0].id' "${GITHUBX_DST}" 2>/dev/null)"
+if [[ $? -ne 0 || ! "${GITHUBX_KEY_ID}" =~ ^[1-9][0-9]*$ ]]; then
  echo 'Check dst error!' >&2; exit 1; fi
