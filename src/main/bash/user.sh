@@ -5,8 +5,11 @@ if [[ $# -ne 2 ]]; then
 
 GITHUBX_PAT_SRC="$1"
 
-if [[ ! "${GITHUBX_PAT_SRC}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ || ! -v "${GITHUBX_PAT_SRC}" ]]; then
- echo 'Wrong token!' >&2; exit 1; fi
+if [[ ! "${GITHUBX_PAT_SRC}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+ echo 'Wrong token!' >&2; exit 1
+elif [[ ! -v "${GITHUBX_PAT_SRC}" ]]; then
+ echo 'Token is unset!' >&2; exit 1
+fi
 
 GITHUBX_PAT="${!GITHUBX_PAT_SRC}"
 
