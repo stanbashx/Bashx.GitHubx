@@ -11,9 +11,7 @@ elif [[ ! -v "${GITHUBX_PAT_SRC}" ]]; then
  echo 'Token is unset!' >&2; exit 1
 fi
 
-GITHUBX_PAT="${!GITHUBX_PAT_SRC}"
-
-if [[ -z "${GITHUBX_PAT}" ]]; then
+if [[ -z "${!GITHUBX_PAT_SRC}" ]]; then
  echo 'No token!' >&2; exit 1; fi
 
 GITHUBX_DST="$2"
@@ -34,12 +32,17 @@ GITHUBX_API='https://api.github.com'
 
 # https://docs.github.com/en/rest/users/users#get-the-authenticated-user
 
+GITHUBX_PAT_HEADER="$(mktemp)"
+printf 'Authorization: token %s' "${!GITHUBX_PAT_SRC}" > "${GITHUBX_PAT_HEADER}"
+
 HTTP_CODE=$(curl -m 8 -w '%{http_code}' \
  "${GITHUBX_API}/user" \
- -H "Authorization: token ${GITHUBX_PAT}" \
- -o "${GITHUBX_DST}" 2>/dev/null)
+ --header "@${GITHUBX_PAT_HEADER}" \
+ -o "${GITHUBX_DST}" 2>/dev/null); CODE=$?
 
-if [[ $? -ne 0 ]]; then
+rm "${GITHUBX_PAT_HEADER}"
+
+if [[ ${CODE} -ne 0 ]]; then
  echo 'Request error!' >&2; exit 1
 elif [[ "${HTTP_CODE}" != '200' ]]; then
  echo 'Response error!' >&2; exit 1
