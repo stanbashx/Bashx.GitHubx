@@ -18,11 +18,14 @@ elif [[ -e "${GITHUBX_DST}" ]]; then
 fi
 
 GITHUBX_API='https://api.github.com'
+GITHUBX_API_VERSION='2026-03-10'
 
 # https://docs.github.com/en/rest/rate-limit/rate-limit
 
 HTTP_CODE=$(curl -m 8 -w '%{http_code}' \
  "${GITHUBX_API}/rate_limit" \
+ --header 'Accept: application/vnd.github+json' \
+ --header "X-GitHub-Api-Version: ${GITHUBX_API_VERSION}" \
  -o "${GITHUBX_DST}" 2>/dev/null)
 
 if [[ $? -ne 0 ]]; then
