@@ -269,7 +269,7 @@ PATH="${mocks}/curl/bin:${PATH}" \
 
 #
 
-VALUES=('foo' '[]0' '{}' 'null' '42')
+VALUES=('foo' '"[]"' '[]0' '{}' 'null' '42')
 for MOCKS_CURL_DST in "${VALUES[@]}"; do
  :> "${STDOUT}"
  :> "${STDERR}"
