@@ -96,7 +96,7 @@ for HTTP_CODE in "${HTTP_CODES[@]}"; do
  rm -f "${GITHUBX_DST}"
 done
 
-VALUES=('foo' '{}0' '[]' 'null' '42')
+VALUES=(' ' $'\n' $'\t' 'foo' '""' '"foo"' '"{}"' '{}0' '[]' 'null' '42')
 for MOCKS_CURL_DST in "${VALUES[@]}"; do
  :> "${STDOUT}"
  :> "${STDERR}"
