@@ -115,8 +115,6 @@ for VALUE in "${VALUES[@]}"; do
  . $asserts/files/equals.sh "${STDERR}" $'Wrong token!\n'
 done
 
-#
-
 :> "${STDOUT}"
 :> "${STDERR}"
 GITHUBX_PAT_SRC='GITHUBX_PAT'
@@ -126,6 +124,8 @@ GITHUBX_PAT='' \
 . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/equals.sh "${STDERR}" $'No token!\n'
+
+#
 
 :> "${STDOUT}"
 :> "${STDERR}"
@@ -187,8 +187,6 @@ PATH="${mocks}/curl/bin:${PATH}" \
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/equals.sh "${STDERR}" $'Request error!\n'
 rm -f "${GITHUBX_DST}"
-
-#
 
 HTTP_CODES=(2 20 22 202 2000 401 403 429 500 '' 'foo' '-1' '200 ' ' 200' $'\n200' $'\t200')
 for HTTP_CODE in "${HTTP_CODES[@]}"; do

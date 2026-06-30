@@ -96,6 +96,60 @@ for HTTP_CODE in "${HTTP_CODES[@]}"; do
  rm -f "${GITHUBX_DST}"
 done
 
+#
+
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_DST="$(mktemp)"
+rm "${GITHUBX_DST}"
+PATH="${mocks}/curl/bin:${PATH}" \
+ MOCKS_CURL_HTTP_CODE=200 \
+ MOCKS_CURL_DST_TYPE='issue:empty_file' \
+ "${SCRIPT}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/equals.sh "${STDERR}" "\"${GITHUBX_DST}\" is empty!"$'\n'
+rm "${GITHUBX_DST}"
+
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_DST="$(mktemp)"
+rm "${GITHUBX_DST}"
+PATH="${mocks}/curl/bin:${PATH}" \
+ MOCKS_CURL_HTTP_CODE=200 \
+ MOCKS_CURL_DST_TYPE='issue:symlink' \
+ "${SCRIPT}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/equals.sh "${STDERR}" "\"${GITHUBX_DST}\" is a symlink!"$'\n'
+rm "${GITHUBX_DST}"
+
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_DST="$(mktemp)"
+rm "${GITHUBX_DST}"
+PATH="${mocks}/curl/bin:${PATH}" \
+ MOCKS_CURL_HTTP_CODE=200 \
+ MOCKS_CURL_DST_TYPE='issue:dir' \
+ "${SCRIPT}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/equals.sh "${STDERR}" "\"${GITHUBX_DST}\" is not a file!"$'\n'
+rm -r "${GITHUBX_DST}"
+
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_DST="$(mktemp)"
+rm "${GITHUBX_DST}"
+PATH="${mocks}/curl/bin:${PATH}" \
+ MOCKS_CURL_HTTP_CODE=200 \
+ "${SCRIPT}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/equals.sh "${STDERR}" "\"${GITHUBX_DST}\" does not exist!"$'\n'
+
+#
+
 VALUES=(' ' $'\n' $'\t' 'foo' '""' '"foo"' '"{}"' '{}0' '[]' 'null' '42')
 for MOCKS_CURL_DST in "${VALUES[@]}"; do
  :> "${STDOUT}"
@@ -153,58 +207,6 @@ PATH="${mocks}/curl/bin:${PATH}" \
 . $asserts/files/equals.sh "${STDERR}" $'Response error!\n'
 . $asserts/files/equals.sh "${GITHUBX_DST}" "${MOCKS_CURL_DST}"
 rm "${GITHUBX_DST}"
-
-#
-
-:> "${STDOUT}"
-:> "${STDERR}"
-GITHUBX_DST="$(mktemp)"
-rm "${GITHUBX_DST}"
-PATH="${mocks}/curl/bin:${PATH}" \
- MOCKS_CURL_HTTP_CODE=200 \
- MOCKS_CURL_DST_TYPE='issue:empty_file' \
- "${SCRIPT}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
-. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
-. $asserts/files/empty.sh "${STDOUT}"
-. $asserts/files/equals.sh "${STDERR}" "\"${GITHUBX_DST}\" is empty!"$'\n'
-rm "${GITHUBX_DST}"
-
-:> "${STDOUT}"
-:> "${STDERR}"
-GITHUBX_DST="$(mktemp)"
-rm "${GITHUBX_DST}"
-PATH="${mocks}/curl/bin:${PATH}" \
- MOCKS_CURL_HTTP_CODE=200 \
- MOCKS_CURL_DST_TYPE='issue:symlink' \
- "${SCRIPT}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
-. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
-. $asserts/files/empty.sh "${STDOUT}"
-. $asserts/files/equals.sh "${STDERR}" "\"${GITHUBX_DST}\" is a symlink!"$'\n'
-rm "${GITHUBX_DST}"
-
-:> "${STDOUT}"
-:> "${STDERR}"
-GITHUBX_DST="$(mktemp)"
-rm "${GITHUBX_DST}"
-PATH="${mocks}/curl/bin:${PATH}" \
- MOCKS_CURL_HTTP_CODE=200 \
- MOCKS_CURL_DST_TYPE='issue:dir' \
- "${SCRIPT}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
-. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
-. $asserts/files/empty.sh "${STDOUT}"
-. $asserts/files/equals.sh "${STDERR}" "\"${GITHUBX_DST}\" is not a file!"$'\n'
-rm -r "${GITHUBX_DST}"
-
-:> "${STDOUT}"
-:> "${STDERR}"
-GITHUBX_DST="$(mktemp)"
-rm "${GITHUBX_DST}"
-PATH="${mocks}/curl/bin:${PATH}" \
- MOCKS_CURL_HTTP_CODE=200 \
- "${SCRIPT}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
-. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
-. $asserts/files/empty.sh "${STDOUT}"
-. $asserts/files/equals.sh "${STDERR}" "\"${GITHUBX_DST}\" does not exist!"$'\n'
 
 #
 
