@@ -3,9 +3,15 @@
 if [[ $# -ne 2 ]]; then
  echo 'Wrong arguments!' >&2; exit 1; fi
 
-GITHUBX_PAT="$1"
+GITHUBX_PAT_SRC="$1"
 
-if [[ -z "${GITHUBX_PAT}" ]]; then
+if [[ ! "${GITHUBX_PAT_SRC}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+ echo 'Wrong token!' >&2; exit 1
+elif [[ ! -v "${GITHUBX_PAT_SRC}" ]]; then
+ echo 'Token is unset!' >&2; exit 1
+fi
+
+if [[ -z "${!GITHUBX_PAT_SRC}" ]]; then
  echo 'No token!' >&2; exit 1; fi
 
 GITHUBX_DST="$2"
@@ -23,12 +29,15 @@ elif [[ -e "${GITHUBX_DST}" ]]; then
 fi
 
 GITHUBX_API='https://api.github.com'
+GITHUBX_API_VERSION='2026-03-10'
 
 # https://docs.github.com/en/rest/users/users#get-the-authenticated-user
 
 HTTP_CODE=$(curl -m 8 -w '%{http_code}' \
  "${GITHUBX_API}/user" \
- -H "Authorization: token ${GITHUBX_PAT}" \
+ --header 'Accept: application/vnd.github+json' \
+ --header "X-GitHub-Api-Version: ${GITHUBX_API_VERSION}" \
+ --header @<(printf 'Authorization: Bearer %s' "${!GITHUBX_PAT_SRC}") \
  -o "${GITHUBX_DST}" 2>/dev/null)
 
 if [[ $? -ne 0 ]]; then

@@ -1,9 +1,20 @@
 #!/usr/local/bin/bash
 
-if [[ $# -ne 1 ]]; then
+if [[ $# -ne 2 ]]; then
  echo 'Wrong arguments!' >&2; exit 1; fi
 
-GITHUBX_DST="$1"
+GITHUBX_PAT_SRC="$1"
+
+if [[ ! "${GITHUBX_PAT_SRC}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+ echo 'Wrong token!' >&2; exit 1
+elif [[ ! -v "${GITHUBX_PAT_SRC}" ]]; then
+ echo 'Token is unset!' >&2; exit 1
+fi
+
+if [[ -z "${!GITHUBX_PAT_SRC}" ]]; then
+ echo 'No token!' >&2; exit 1; fi
+
+GITHUBX_DST="$2"
 
 if [[ -z "${GITHUBX_DST}" ]]; then
  echo 'No dst!' >&2; exit 1
@@ -20,12 +31,13 @@ fi
 GITHUBX_API='https://api.github.com'
 GITHUBX_API_VERSION='2026-03-10'
 
-# https://docs.github.com/en/rest/rate-limit/rate-limit
+# https://docs.github.com/en/rest/users/gpg-keys#list-gpg-keys-for-the-authenticated-user
 
 HTTP_CODE=$(curl -m 8 -w '%{http_code}' \
- "${GITHUBX_API}/rate_limit" \
+ "${GITHUBX_API}/user/gpg_keys" \
  --header 'Accept: application/vnd.github+json' \
  --header "X-GitHub-Api-Version: ${GITHUBX_API_VERSION}" \
+ --header @<(printf 'Authorization: Bearer %s' "${!GITHUBX_PAT_SRC}") \
  -o "${GITHUBX_DST}" 2>/dev/null)
 
 if [[ $? -ne 0 ]]; then
@@ -45,9 +57,5 @@ elif [[ ! -s "${GITHUBX_DST}" ]]; then
 fi
 
 GITHUBX_DST_TAGS="$(yq -Mer -p=json -o=json 'tag' "${GITHUBX_DST}" 2>/dev/null)"
-if [[ $? -ne 0 || "${GITHUBX_DST_TAGS}" != '!!map' ]]; then
+if [[ $? -ne 0 || "${GITHUBX_DST_TAGS}" != '!!seq' ]]; then
  echo 'Parse dst error!' >&2; exit 1; fi
-
-GITHUBX_RATE_LIMIT="$(yq -Me -p=json -o=json '.resources.core.limit' "${GITHUBX_DST}" 2>/dev/null)"
-if [[ $? -ne 0 || ! "${GITHUBX_RATE_LIMIT}" =~ ^[1-9][0-9]*$ ]]; then
- echo 'Check dst error!' >&2; exit 1; fi

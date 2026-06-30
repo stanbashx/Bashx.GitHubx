@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-SCRIPT='src/main/bash/user.sh'
+SCRIPT='src/main/bash/user_gpg_keys.sh'
 
 echo "Running test for \"${SCRIPT}\"..."
 
@@ -267,7 +267,7 @@ PATH="${mocks}/curl/bin:${PATH}" \
 
 #
 
-VALUES=(' ' $'\n' $'\t' 'foo' '""' '"foo"' '"{}"' '{}0' '[]' 'null' '42')
+VALUES=(' ' $'\n' $'\t' 'foo' '""' '"foo"' '"[]"' '[]0' '{}' 'null' '42')
 for MOCKS_CURL_DST in "${VALUES[@]}"; do
  :> "${STDOUT}"
  :> "${STDERR}"
@@ -282,24 +282,6 @@ for MOCKS_CURL_DST in "${VALUES[@]}"; do
  . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
  . $asserts/files/empty.sh "${STDOUT}"
  . $asserts/files/equals.sh "${STDERR}" $'Parse dst error!\n'
- rm "${GITHUBX_DST}"
-done
-
-VALUES=('{}' '{"id":null}' '{"id":{}}' '{"id":[]}' '{"id":0}' '{"id":"42"}' '{"id":-1}' '{"id":0.5}')
-for MOCKS_CURL_DST in "${VALUES[@]}"; do
- :> "${STDOUT}"
- :> "${STDERR}"
- GITHUBX_PAT_SRC='GITHUBX_PAT'
- GITHUBX_DST="$(mktemp)"
- rm "${GITHUBX_DST}"
- PATH="${mocks}/curl/bin:${PATH}" \
-  MOCKS_CURL_HTTP_CODE=200 \
-  MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
-  GITHUBX_PAT='foo' \
-  "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
- . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
- . $asserts/files/empty.sh "${STDOUT}"
- . $asserts/files/equals.sh "${STDERR}" $'Check dst error!\n'
  rm "${GITHUBX_DST}"
 done
 
@@ -320,28 +302,31 @@ PATH="${mocks}/curl/bin:${PATH}" \
 . $asserts/files/equals.sh "${GITHUBX_DST}" "${MOCKS_CURL_DST}"
 rm "${GITHUBX_DST}"
 
-:> "${STDOUT}"
-:> "${STDERR}"
-GITHUBX_PAT_SRC='GITHUBX_PAT'
-GITHUBX_PAT='foo'
-GITHUBX_DST="$(mktemp)"
-rm "${GITHUBX_DST}"
-MOCKS_CURL_HEADERS_PATH="$(mktemp)"
-rm "${MOCKS_CURL_HEADERS_PATH}"
-MOCKS_CURL_DST='{"id":42}'
-PATH="${mocks}/curl/bin:${PATH}" \
- MOCKS_CURL_HTTP_CODE=200 \
- MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
- MOCKS_CURL_HEADERS_PATH="${MOCKS_CURL_HEADERS_PATH}" \
- GITHUBX_PAT="${GITHUBX_PAT}" \
- "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
-. $asserts/ints/eq.sh "${SCRIPT}" "$?" 0
-. $asserts/files/empty.sh "${STDOUT}"
-. $asserts/files/empty.sh "${STDERR}"
-. $asserts/files/equals.sh "${GITHUBX_DST}" "${MOCKS_CURL_DST}"
-. $asserts/files/not_empty.sh "${MOCKS_CURL_HEADERS_PATH}" # todo mock curl headers payload
-rm "${GITHUBX_DST}"
-rm "${MOCKS_CURL_HEADERS_PATH}"
+VALUES=('[]' '[{"id":42}]' '[{"id":42},{"id":43}]')
+for VALUE in "${VALUES[@]}"; do
+ :> "${STDOUT}"
+ :> "${STDERR}"
+ GITHUBX_PAT_SRC='GITHUBX_PAT'
+ GITHUBX_PAT='foo'
+ GITHUBX_DST="$(mktemp)"
+ rm "${GITHUBX_DST}"
+ MOCKS_CURL_HEADERS_PATH="$(mktemp)"
+ rm "${MOCKS_CURL_HEADERS_PATH}"
+ MOCKS_CURL_DST="${VALUE}"
+ PATH="${mocks}/curl/bin:${PATH}" \
+  MOCKS_CURL_HTTP_CODE=200 \
+  MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
+  MOCKS_CURL_HEADERS_PATH="${MOCKS_CURL_HEADERS_PATH}" \
+  GITHUBX_PAT="${GITHUBX_PAT}" \
+  "${SCRIPT}" "${GITHUBX_PAT_SRC}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+ . $asserts/ints/eq.sh "${SCRIPT}" "$?" 0
+ . $asserts/files/empty.sh "${STDOUT}"
+ . $asserts/files/empty.sh "${STDERR}"
+ . $asserts/files/equals.sh "${GITHUBX_DST}" "${MOCKS_CURL_DST}"
+ . $asserts/files/not_empty.sh "${MOCKS_CURL_HEADERS_PATH}" # todo mock curl headers payload
+ rm "${GITHUBX_DST}"
+ rm "${MOCKS_CURL_HEADERS_PATH}"
+done
 
 #
 
