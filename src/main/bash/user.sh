@@ -29,12 +29,15 @@ elif [[ -e "${GITHUBX_DST}" ]]; then
 fi
 
 GITHUBX_API='https://api.github.com'
+GITHUBX_API_VERSION='2026-03-10'
 
 # https://docs.github.com/en/rest/users/users#get-the-authenticated-user
 
 HTTP_CODE=$(curl -m 8 -w '%{http_code}' \
  "${GITHUBX_API}/user" \
- --header @<(printf 'Authorization: token %s' "${!GITHUBX_PAT_SRC}") \
+ --header 'Accept: application/vnd.github+json' \
+ --header "X-GitHub-Api-Version: ${GITHUBX_API_VERSION}" \
+ --header @<(printf 'Authorization: Bearer %s' "${!GITHUBX_PAT_SRC}") \
  -o "${GITHUBX_DST}" 2>/dev/null); CODE=$?
 
 if [[ ${CODE} -ne 0 ]]; then
