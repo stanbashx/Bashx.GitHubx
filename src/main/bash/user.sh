@@ -32,15 +32,10 @@ GITHUBX_API='https://api.github.com'
 
 # https://docs.github.com/en/rest/users/users#get-the-authenticated-user
 
-GITHUBX_PAT_HEADER="$(mktemp)"
-printf 'Authorization: token %s' "${!GITHUBX_PAT_SRC}" > "${GITHUBX_PAT_HEADER}"
-
 HTTP_CODE=$(curl -m 8 -w '%{http_code}' \
  "${GITHUBX_API}/user" \
- --header "@${GITHUBX_PAT_HEADER}" \
+ --header @<(printf 'Authorization: token %s' "${!GITHUBX_PAT_SRC}") \
  -o "${GITHUBX_DST}" 2>/dev/null); CODE=$?
-
-rm "${GITHUBX_PAT_HEADER}"
 
 if [[ ${CODE} -ne 0 ]]; then
  echo 'Request error!' >&2; exit 1
