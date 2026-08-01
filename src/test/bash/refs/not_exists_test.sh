@@ -44,6 +44,38 @@ STDERR="$(mktemp)"
 
 #
 
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_REP_OWNER=''
+GITHUBX_REP_NAME=''
+GITHUBX_REF=''
+"${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" > "${STDOUT}" 2> "${STDERR}"
+. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/equals.sh "${STDERR}" $'No repository owner!\n'
+
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_REP_OWNER='foo'
+GITHUBX_REP_NAME=''
+GITHUBX_REF=''
+"${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" > "${STDOUT}" 2> "${STDERR}"
+. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/equals.sh "${STDERR}" $'No repository name!\n'
+
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_REP_OWNER='foo'
+GITHUBX_REP_NAME='bar'
+GITHUBX_REF=''
+"${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" > "${STDOUT}" 2> "${STDERR}"
+. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/equals.sh "${STDERR}" $'No ref!\n'
+
+#
+
 echo 'Not implemented!'; exit 1 # todo
 
 #
