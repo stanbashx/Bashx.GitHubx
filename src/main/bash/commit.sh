@@ -35,7 +35,7 @@ fi
 GITHUBX_API='https://api.github.com'
 GITHUBX_API_VERSION='2026-03-10'
 
-# https://docs.github.com/en/rest/rate-limit/rate-limit
+# https://docs.github.com/en/rest/commits/commits
 
 HTTP_CODE=$(curl -m 8 -w '%{http_code}' \
  "${GITHUBX_API}/repos/${GITHUBX_REP_OWNER}/${GITHUBX_REP_NAME}/commits/${GITHUBX_REF}" \
@@ -62,3 +62,7 @@ fi
 GITHUBX_DST_TAGS="$(yq -Mer -p=json -o=json 'tag' "${GITHUBX_DST}" 2>/dev/null)"
 if [[ $? -ne 0 || "${GITHUBX_DST_TAGS}" != '!!map' ]]; then
  echo 'Parse dst error!' >&2; exit 1; fi
+
+GITHUBX_COMMIT_SHA="$(yq -Mer -p=json -o=json '.sha' "${GITHUBX_DST}" 2>/dev/null)"
+if [[ $? -ne 0 || "${GITHUBX_COMMIT_SHA}" != "${GITHUBX_REF}" ]]; then
+ echo 'Check dst error!' >&2; exit 1; fi
