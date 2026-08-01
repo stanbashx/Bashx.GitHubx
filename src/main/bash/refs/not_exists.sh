@@ -21,7 +21,7 @@ GITHUBX_API_VERSION='2026-03-10'
 # https://docs.github.com/en/rest/git/refs
 
 HTTP_CODE=$(curl -m 8 -w '%{http_code}' \
- "${GITHUBX_API}/repos/${GITHUBX_REP_OWNER}/${GITHUBX_REP_NAME}/git/refs/${GITHUBX_REF}" \
+ "${GITHUBX_API}/repos/${GITHUBX_REP_OWNER}/${GITHUBX_REP_NAME}/git/ref/${GITHUBX_REF}" \
  --header 'Accept: application/vnd.github+json' \
  --header "X-GitHub-Api-Version: ${GITHUBX_API_VERSION}" \
  -o /dev/null 2>/dev/null)
