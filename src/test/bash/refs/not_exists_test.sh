@@ -76,7 +76,56 @@ GITHUBX_REF=''
 
 #
 
-echo 'Not implemented!'; exit 1 # todo
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_REP_OWNER='foo'
+GITHUBX_REP_NAME='bar'
+GITHUBX_REF='qux'
+PATH="${mocks}/curl/bin:${PATH}" \
+ MOCKS_CURL_EXIT_CODE=1 \
+ "${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" > "${STDOUT}" 2> "${STDERR}"
+. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/equals.sh "${STDERR}" $'Request error!\n'
+
+HTTP_CODES=(2 20 22 202 2000 401 403 429 500 '' 'foo' '-1' '404 ' ' 404' $'\n404' $'\t404')
+for HTTP_CODE in "${HTTP_CODES[@]}"; do
+ :> "${STDOUT}"
+ :> "${STDERR}"
+ GITHUBX_REP_OWNER='foo'
+ GITHUBX_REP_NAME='bar'
+ GITHUBX_REF='qux'
+ PATH="${mocks}/curl/bin:${PATH}" \
+  MOCKS_CURL_HTTP_CODE="${HTTP_CODE}" \
+  "${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" > "${STDOUT}" 2> "${STDERR}"
+ . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+ . $asserts/files/empty.sh "${STDOUT}"
+ . $asserts/files/equals.sh "${STDERR}" $'Response error!\n'
+done
+
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_REP_OWNER='foo'
+GITHUBX_REP_NAME='bar'
+GITHUBX_REF='qux'
+PATH="${mocks}/curl/bin:${PATH}" \
+ MOCKS_CURL_HTTP_CODE=200 \
+ "${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" > "${STDOUT}" 2> "${STDERR}"
+. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/equals.sh "${STDERR}" "Ref \"${GITHUBX_REF}\" exists!"$'\n'
+
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_REP_OWNER='foo'
+GITHUBX_REP_NAME='bar'
+GITHUBX_REF='qux'
+PATH="${mocks}/curl/bin:${PATH}" \
+ MOCKS_CURL_HTTP_CODE=404 \
+ "${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" > "${STDOUT}" 2> "${STDERR}"
+. $asserts/ints/eq.sh "${SCRIPT}" "$?" 0
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/empty.sh "${STDERR}"
 
 #
 
