@@ -51,8 +51,6 @@ STDERR="$(mktemp)"
 
 #
 
-echo 'Not implemented!'; exit 1 # todo
-
 :> "${STDOUT}"
 :> "${STDERR}"
 GITHUBX_REP_OWNER=''
@@ -90,18 +88,7 @@ GITHUBX_DST=''
 :> "${STDERR}"
 GITHUBX_REP_OWNER='foo'
 GITHUBX_REP_NAME='bar'
-GITHUBX_REF='42'
-GITHUBX_DST=''
-"${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
-. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
-. $asserts/files/empty.sh "${STDOUT}"
-. $asserts/files/equals.sh "${STDERR}" $'Wrong ref!\n'
-
-:> "${STDOUT}"
-:> "${STDERR}"
-GITHUBX_REP_OWNER='foo'
-GITHUBX_REP_NAME='bar'
-GITHUBX_REF='a085a56c2593123dfabbaf2ca08a0743e66b356f'
+GITHUBX_REF='tags/foo'
 GITHUBX_DST=''
 "${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
 . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
@@ -114,7 +101,7 @@ GITHUBX_DST=''
 :> "${STDERR}"
 GITHUBX_REP_OWNER='foo'
 GITHUBX_REP_NAME='bar'
-GITHUBX_REF='a085a56c2593123dfabbaf2ca08a0743e66b356f'
+GITHUBX_REF='tags/foo'
 GITHUBX_DST="$(mktemp)"
 rm "${GITHUBX_DST}"
 PATH="${mocks}/curl/bin:${PATH}" \
@@ -131,7 +118,7 @@ for HTTP_CODE in "${HTTP_CODES[@]}"; do
  :> "${STDERR}"
  GITHUBX_REP_OWNER='foo'
  GITHUBX_REP_NAME='bar'
- GITHUBX_REF='a085a56c2593123dfabbaf2ca08a0743e66b356f'
+ GITHUBX_REF='tags/foo'
  GITHUBX_DST="$(mktemp)"
  rm "${GITHUBX_DST}"
  PATH="${mocks}/curl/bin:${PATH}" \
@@ -149,10 +136,10 @@ done
 :> "${STDERR}"
 GITHUBX_REP_OWNER='foo'
 GITHUBX_REP_NAME='bar'
-GITHUBX_REF='a085a56c2593123dfabbaf2ca08a0743e66b356f'
+GITHUBX_REF='tags/foo'
 GITHUBX_DST="$(mktemp)"
 rm "${GITHUBX_DST}"
-MOCKS_CURL_DST="{\"sha\":\"${GITHUBX_REF}\"}"
+MOCKS_CURL_DST="{\"ref\":\"refs/${GITHUBX_REF}\"}"
 PATH="${mocks}/curl/bin:${PATH}" \
  MOCKS_CURL_HTTP_CODE=200 \
  MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
