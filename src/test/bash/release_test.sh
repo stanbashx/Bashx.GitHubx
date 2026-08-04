@@ -168,6 +168,39 @@ GITHUBX_PAT='42' \
 
 #
 
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_DST="$(mktemp)"
+rm "${GITHUBX_DST}"
+PATH="${mocks}/curl/bin:${PATH}" \
+ MOCKS_CURL_EXIT_CODE=1 \
+ GITHUBX_PAT='42' \
+ "${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_PAT_SRC}" "${GITHUBX_RELEASE_SHA}" "${GITHUBX_RELEASE_VERSION}" "${GITHUBX_RELEASE_MESSAGE}" "${GITHUBX_IS_PRERELEASE}" "${GITHUBX_DST}" \
+ > "${STDOUT}" 2> "${STDERR}"
+. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/equals.sh "${STDERR}" 'Request error!'$'\n'
+rm -f "${GITHUBX_DST}"
+
+HTTP_CODES=(2 20 22 200 202 2000 401 403 429 500 '' 'foo' '-1' '201 ' ' 201' $'\n201' $'\t201')
+for HTTP_CODE in "${HTTP_CODES[@]}"; do
+ :> "${STDOUT}"
+ :> "${STDERR}"
+ GITHUBX_DST="$(mktemp)"
+ rm "${GITHUBX_DST}"
+ PATH="${mocks}/curl/bin:${PATH}" \
+  MOCKS_CURL_HTTP_CODE="${HTTP_CODE}" \
+  GITHUBX_PAT='42' \
+  "${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_PAT_SRC}" "${GITHUBX_RELEASE_SHA}" "${GITHUBX_RELEASE_VERSION}" "${GITHUBX_RELEASE_MESSAGE}" "${GITHUBX_IS_PRERELEASE}" "${GITHUBX_DST}" \
+  > "${STDOUT}" 2> "${STDERR}"
+ . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
+ . $asserts/files/empty.sh "${STDOUT}"
+ . $asserts/files/equals.sh "${STDERR}" $'Response error!\n'
+ rm -f "${GITHUBX_DST}"
+done
+
+#
+
 echo 'Not implemented!'; exit 1 # todo
 
 #
