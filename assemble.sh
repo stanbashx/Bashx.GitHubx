@@ -2,7 +2,7 @@
 
 REP_OWNER='stanbashx'
 REP_NAME='Bashx.GitHubx'
-VERSION='0.0.8'
+VERSION='0.0.9'
 
 if [[ -d 'build' ]]; then
  echo 'Build dir exists!' >&2; exit 1; fi
