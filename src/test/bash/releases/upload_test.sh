@@ -172,9 +172,25 @@ done
 
 #
 
-echo 'Not implemented!'; exit 1 # todo
+:> "${STDOUT}"
+:> "${STDERR}"
+GITHUBX_DST="$(mktemp)"
+rm "${GITHUBX_DST}"
+MOCKS_CURL_DST="{\"digest\":\"sha256:97df3588b5a3f24babc3851b372f0ba71a9dcdded43b14b9d06961bfc1707d9d\"}"
+PATH="${mocks}/curl/bin:${PATH}" \
+ MOCKS_CURL_HTTP_CODE=201 \
+ MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
+ GITHUBX_PAT='42' \
+ "${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_PAT_SRC}" "${GITHUBX_RELEASE_ID}" "${GITHUBX_ASSET_PATH}" "${GITHUBX_ASSET_NAME}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+. $asserts/ints/eq.sh "${SCRIPT}" "$?" 0
+. $asserts/files/empty.sh "${STDOUT}"
+. $asserts/files/empty.sh "${STDERR}"
+. $asserts/files/equals.sh "${GITHUBX_DST}" "${MOCKS_CURL_DST}"
+rm "${GITHUBX_DST}"
 
 #
+
+rm "${GITHUBX_ASSET_PATH}"
 
 rm "${STDOUT}"
 rm "${STDERR}"
