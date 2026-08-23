@@ -1,7 +1,12 @@
 #!/usr/local/bin/bash
 
-if [[ $# -ne 4 ]]; then
- echo 'Wrong arguments!' >&2; exit 1; fi
+if [[ $# -eq 5 ]]; then
+ GITHUBX_SALT="$5"
+ if [[ -z "${GITHUBX_SALT}" ]]; then
+  echo 'No salt!' >&2; exit 1; fi
+elif [[ $# -ne 4 ]]; then
+ echo 'Wrong arguments!' >&2; exit 1
+fi
 
 GITHUBX_REP_OWNER="$1"
 if [[ -z "${GITHUBX_REP_OWNER}" ]]; then
@@ -34,10 +39,20 @@ GITHUBX_API_VERSION='2026-03-10'
 
 # https://docs.github.com/en/rest/git/refs
 
+GITHUBX_REQUEST_ARGS=(
+ --header 'Accept: application/vnd.github+json'
+ --header "X-GitHub-Api-Version: ${GITHUBX_API_VERSION}"
+)
+
+if [[ -n "${GITHUBX_SALT}" ]]; then
+ GITHUBX_REQUEST_ARGS+=(
+  --url-query "salt=${GITHUBX_SALT}" \
+ )
+fi
+
 HTTP_CODE=$(curl -m 8 -w '%{http_code}' \
  "${GITHUBX_API}/repos/${GITHUBX_REP_OWNER}/${GITHUBX_REP_NAME}/git/ref/${GITHUBX_REF}" \
- --header 'Accept: application/vnd.github+json' \
- --header "X-GitHub-Api-Version: ${GITHUBX_API_VERSION}" \
+ "${GITHUBX_REQUEST_ARGS[@]}" \
  -o "${GITHUBX_DST}" 2>/dev/null)
 
 if [[ $? -ne 0 ]]; then
