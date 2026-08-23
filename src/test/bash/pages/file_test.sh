@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-SCRIPT='src/main/bash/ref.sh'
+SCRIPT='src/main/bash/pages/file.sh'
 
 echo "Running test for \"${SCRIPT}\"..."
 
@@ -37,14 +37,7 @@ STDERR="$(mktemp)"
 
 :> "${STDOUT}"
 :> "${STDERR}"
-"${SCRIPT}" '' '' '' > "${STDOUT}" 2> "${STDERR}"
-. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
-. $asserts/files/empty.sh "${STDOUT}"
-. $asserts/files/equals.sh "${STDERR}" $'Wrong arguments!\n'
-
-:> "${STDOUT}"
-:> "${STDERR}"
-"${SCRIPT}" '' '' '' '' '' '' > "${STDOUT}" 2> "${STDERR}"
+"${SCRIPT}" '' '' '' '' > "${STDOUT}" 2> "${STDERR}"
 . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/equals.sh "${STDERR}" $'Wrong arguments!\n'
@@ -54,10 +47,9 @@ STDERR="$(mktemp)"
 :> "${STDOUT}"
 :> "${STDERR}"
 GITHUBX_REP_OWNER=''
-GITHUBX_REP_NAME=''
-GITHUBX_REF=''
+GITHUBX_FILE_PATH=''
 GITHUBX_DST=''
-"${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+"${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_FILE_PATH}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
 . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/equals.sh "${STDERR}" $'No repository owner!\n'
@@ -65,32 +57,19 @@ GITHUBX_DST=''
 :> "${STDOUT}"
 :> "${STDERR}"
 GITHUBX_REP_OWNER='foo'
-GITHUBX_REP_NAME=''
-GITHUBX_REF=''
+GITHUBX_FILE_PATH=''
 GITHUBX_DST=''
-"${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+"${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_FILE_PATH}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
 . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
 . $asserts/files/empty.sh "${STDOUT}"
-. $asserts/files/equals.sh "${STDERR}" $'No repository name!\n'
+. $asserts/files/equals.sh "${STDERR}" $'No file path!\n'
 
 :> "${STDOUT}"
 :> "${STDERR}"
 GITHUBX_REP_OWNER='foo'
-GITHUBX_REP_NAME='bar'
-GITHUBX_REF=''
+GITHUBX_FILE_PATH='bar'
 GITHUBX_DST=''
-"${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
-. $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
-. $asserts/files/empty.sh "${STDOUT}"
-. $asserts/files/equals.sh "${STDERR}" $'No ref!\n'
-
-:> "${STDOUT}"
-:> "${STDERR}"
-GITHUBX_REP_OWNER='foo'
-GITHUBX_REP_NAME='bar'
-GITHUBX_REF='tags/foo'
-GITHUBX_DST=''
-"${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+"${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_FILE_PATH}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
 . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/equals.sh "${STDERR}" $'No dst!\n'
@@ -100,13 +79,12 @@ GITHUBX_DST=''
 :> "${STDOUT}"
 :> "${STDERR}"
 GITHUBX_REP_OWNER='foo'
-GITHUBX_REP_NAME='bar'
-GITHUBX_REF='tags/foo'
+GITHUBX_FILE_PATH='bar'
 GITHUBX_DST="$(mktemp)"
 rm "${GITHUBX_DST}"
 PATH="${mocks}/curl/bin:${PATH}" \
  MOCKS_CURL_EXIT_CODE=1 \
- "${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+ "${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_FILE_PATH}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
 . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/equals.sh "${STDERR}" $'Request error!\n'
@@ -117,13 +95,12 @@ for HTTP_CODE in "${HTTP_CODES[@]}"; do
  :> "${STDOUT}"
  :> "${STDERR}"
  GITHUBX_REP_OWNER='foo'
- GITHUBX_REP_NAME='bar'
- GITHUBX_REF='tags/foo'
+ GITHUBX_FILE_PATH='bar'
  GITHUBX_DST="$(mktemp)"
  rm "${GITHUBX_DST}"
  PATH="${mocks}/curl/bin:${PATH}" \
   MOCKS_CURL_HTTP_CODE="${HTTP_CODE}" \
-  "${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
+  "${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_FILE_PATH}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
  . $asserts/ints/eq.sh "${SCRIPT}" "$?" 1
  . $asserts/files/empty.sh "${STDOUT}"
  . $asserts/files/equals.sh "${STDERR}" $'Response error!\n'
@@ -135,34 +112,14 @@ done
 :> "${STDOUT}"
 :> "${STDERR}"
 GITHUBX_REP_OWNER='foo'
-GITHUBX_REP_NAME='bar'
-GITHUBX_REF='tags/foo'
+GITHUBX_FILE_PATH='bar'
 GITHUBX_DST="$(mktemp)"
 rm "${GITHUBX_DST}"
-MOCKS_CURL_DST="{\"ref\":\"refs/${GITHUBX_REF}\"}"
+MOCKS_CURL_DST='foobarbaz'
 PATH="${mocks}/curl/bin:${PATH}" \
  MOCKS_CURL_HTTP_CODE=200 \
  MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
- "${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
-. $asserts/ints/eq.sh "${SCRIPT}" "$?" 0
-. $asserts/files/empty.sh "${STDOUT}"
-. $asserts/files/empty.sh "${STDERR}"
-. $asserts/files/equals.sh "${GITHUBX_DST}" "${MOCKS_CURL_DST}"
-rm "${GITHUBX_DST}"
-
-:> "${STDOUT}"
-:> "${STDERR}"
-GITHUBX_REP_OWNER='foo'
-GITHUBX_REP_NAME='bar'
-GITHUBX_REF='tags/foo'
-GITHUBX_DST="$(mktemp)"
-GITHUBX_SALT='42'
-rm "${GITHUBX_DST}"
-MOCKS_CURL_DST="{\"ref\":\"refs/${GITHUBX_REF}\"}"
-PATH="${mocks}/curl/bin:${PATH}" \
- MOCKS_CURL_HTTP_CODE=200 \
- MOCKS_CURL_DST="${MOCKS_CURL_DST}" \
- "${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_REP_NAME}" "${GITHUBX_REF}" "${GITHUBX_DST}" "${GITHUBX_SALT}" > "${STDOUT}" 2> "${STDERR}"
+ "${SCRIPT}" "${GITHUBX_REP_OWNER}" "${GITHUBX_FILE_PATH}" "${GITHUBX_DST}" > "${STDOUT}" 2> "${STDERR}"
 . $asserts/ints/eq.sh "${SCRIPT}" "$?" 0
 . $asserts/files/empty.sh "${STDOUT}"
 . $asserts/files/empty.sh "${STDERR}"
